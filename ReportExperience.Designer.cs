@@ -30,6 +30,8 @@
         {
             this.components = new System.ComponentModel.Container();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
+            this.employeeBindingSource = new System.Windows.Forms.BindingSource(this.components);
+            this.hRD_DBDataSet = new HRD.HRD_DBDataSet();
             this.label4 = new System.Windows.Forms.Label();
             this.createB = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
@@ -38,11 +40,9 @@
             this.dateTimePicker1 = new System.Windows.Forms.DateTimePicker();
             this.label1 = new System.Windows.Forms.Label();
             this.checkQualificationB = new System.Windows.Forms.Button();
-            this.hRD_DBDataSet = new HRD.HRD_DBDataSet();
-            this.employeeBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.employeeTableAdapter = new HRD.HRD_DBDataSetTableAdapters.EmployeeTableAdapter();
-            ((System.ComponentModel.ISupportInitialize)(this.hRD_DBDataSet)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.employeeBindingSource)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.hRD_DBDataSet)).BeginInit();
             this.SuspendLayout();
             // 
             // comboBox1
@@ -51,11 +51,21 @@
             this.comboBox1.DisplayMember = "Name";
             this.comboBox1.FormattingEnabled = true;
             this.comboBox1.Location = new System.Drawing.Point(20, 123);
-            this.comboBox1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.comboBox1.Margin = new System.Windows.Forms.Padding(4);
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.Size = new System.Drawing.Size(245, 24);
             this.comboBox1.TabIndex = 34;
             this.comboBox1.ValueMember = "ID_Emp";
+            // 
+            // employeeBindingSource
+            // 
+            this.employeeBindingSource.DataMember = "Employee";
+            this.employeeBindingSource.DataSource = this.hRD_DBDataSet;
+            // 
+            // hRD_DBDataSet
+            // 
+            this.hRD_DBDataSet.DataSetName = "HRD_DBDataSet";
+            this.hRD_DBDataSet.SchemaSerializationMode = System.Data.SchemaSerializationMode.IncludeSchema;
             // 
             // label4
             // 
@@ -70,7 +80,7 @@
             // createB
             // 
             this.createB.Location = new System.Drawing.Point(345, 197);
-            this.createB.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.createB.Margin = new System.Windows.Forms.Padding(4);
             this.createB.Name = "createB";
             this.createB.Size = new System.Drawing.Size(133, 28);
             this.createB.TabIndex = 32;
@@ -91,7 +101,7 @@
             // dateTimePicker2
             // 
             this.dateTimePicker2.Location = new System.Drawing.Point(296, 50);
-            this.dateTimePicker2.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.dateTimePicker2.Margin = new System.Windows.Forms.Padding(4);
             this.dateTimePicker2.Name = "dateTimePicker2";
             this.dateTimePicker2.Size = new System.Drawing.Size(181, 22);
             this.dateTimePicker2.TabIndex = 30;
@@ -109,7 +119,7 @@
             // dateTimePicker1
             // 
             this.dateTimePicker1.Location = new System.Drawing.Point(84, 50);
-            this.dateTimePicker1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.dateTimePicker1.Margin = new System.Windows.Forms.Padding(4);
             this.dateTimePicker1.Name = "dateTimePicker1";
             this.dateTimePicker1.Size = new System.Drawing.Size(181, 22);
             this.dateTimePicker1.TabIndex = 28;
@@ -120,29 +130,20 @@
             this.label1.Location = new System.Drawing.Point(16, 11);
             this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(223, 17);
+            this.label1.Size = new System.Drawing.Size(249, 17);
             this.label1.TabIndex = 27;
-            this.label1.Text = "Отчет \"Опытность сотрудников\"";
+            this.label1.Text = "Отчет \"Загруженность сотрудников\"";
             // 
             // checkQualificationB
             // 
             this.checkQualificationB.Location = new System.Drawing.Point(275, 121);
-            this.checkQualificationB.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.checkQualificationB.Margin = new System.Windows.Forms.Padding(4);
             this.checkQualificationB.Name = "checkQualificationB";
             this.checkQualificationB.Size = new System.Drawing.Size(33, 28);
             this.checkQualificationB.TabIndex = 35;
             this.checkQualificationB.Text = "...";
             this.checkQualificationB.UseVisualStyleBackColor = true;
-            // 
-            // hRD_DBDataSet
-            // 
-            this.hRD_DBDataSet.DataSetName = "HRD_DBDataSet";
-            this.hRD_DBDataSet.SchemaSerializationMode = System.Data.SchemaSerializationMode.IncludeSchema;
-            // 
-            // employeeBindingSource
-            // 
-            this.employeeBindingSource.DataMember = "Employee";
-            this.employeeBindingSource.DataSource = this.hRD_DBDataSet;
+            this.checkQualificationB.Click += new System.EventHandler(this.checkEmployeeB_Click);
             // 
             // employeeTableAdapter
             // 
@@ -163,14 +164,14 @@
             this.Controls.Add(this.dateTimePicker1);
             this.Controls.Add(this.label1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.Margin = new System.Windows.Forms.Padding(4);
             this.MaximizeBox = false;
             this.Name = "ReportExperience";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Отчет \"Опытность сотрудников\"";
+            this.Text = "Отчет \"Загруженность сотрудников\"";
             this.Load += new System.EventHandler(this.ReportExperience_Load);
-            ((System.ComponentModel.ISupportInitialize)(this.hRD_DBDataSet)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.employeeBindingSource)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.hRD_DBDataSet)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 

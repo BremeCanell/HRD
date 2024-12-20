@@ -39,11 +39,55 @@ namespace HRD
         }
         private void deleteB_Click(object sender, EventArgs e)
         {
-            if (dataGridView1.RowCount != 0)
+            if (dataGridView1.RowCount == 0)
+                return;
+
+            string id_pr = dataGridView1.CurrentRow.Cells[0].Value.ToString();
+            
+            try
             {
-                string id_pr = dataGridView1.CurrentRow.Cells[0].Value.ToString();
-                string sql = "DELETE FROM Project Where ID_Pr = " + id_pr;
-                Sq(sql);
+                connect = new SqlConnection(connectionString);
+                connect.Open();
+                
+                using (SqlTransaction transaction = connect.BeginTransaction())
+                {
+                    try
+                    {
+                        // Сначала удаляем связанные записи из Project_Employee
+                        string deleteEmployeesSql = "DELETE FROM Project_Employee WHERE Pr_ID = @ProjectId";
+                        using (SqlCommand deleteEmpCommand = new SqlCommand(deleteEmployeesSql, connect, transaction))
+                        {
+                            deleteEmpCommand.Parameters.AddWithValue("@ProjectId", id_pr);
+                            deleteEmpCommand.ExecuteNonQuery();
+                        }
+
+                        // Затем удаляем сам проект
+                        string deleteProjectSql = "DELETE FROM Project WHERE ID_Pr = @ProjectId";
+                        using (SqlCommand deleteProjectCommand = new SqlCommand(deleteProjectSql, connect, transaction))
+                        {
+                            deleteProjectCommand.Parameters.AddWithValue("@ProjectId", id_pr);
+                            deleteProjectCommand.ExecuteNonQuery();
+                        }
+
+                        transaction.Commit();
+                        UpdateProjectTable();
+                    }
+                    catch (Exception)
+                    {
+                        transaction.Rollback();
+                        throw;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при удалении проекта: {ex.Message}", 
+                    "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                if (connect.State == ConnectionState.Open)
+                    connect.Close();
             }
         }
         private void confirmB_Click(object sender, EventArgs e)
@@ -66,11 +110,15 @@ namespace HRD
                 return;
             }
 
-            if (employeeTeam.Any(emp => emp.ID_Emp == RespCombo.SelectedValue.ToString()))
+            if (RespCombo.SelectedValue != null && RespCombo.SelectedValue != DBNull.Value)
             {
-                MessageBox.Show("Ответственный за проект не может быть членом команды!", 
-                    "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
+                string respId = RespCombo.SelectedValue.ToString();
+                if (employeeTeam.Any(emp => emp.ID_Emp == respId))
+                {
+                    MessageBox.Show("Ответственный за проект не может быть членом команды!", 
+                        "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
             }
 
             if (addMode)
@@ -94,17 +142,20 @@ namespace HRD
                     values += ",'" + DFEnd.Value.ToString("yyyy-MM-dd") + "'";
                 }
 
-                sql += ") " + values + ");";
-                Sq(sql);
+                sql += ") " + values + "); SELECT SCOPE_IDENTITY();";
                 
-                sql = "SELECT SCOPE_IDENTITY()";
                 connect = new SqlConnection(connectionString);
                 connect.Open();
                 SqlCommand command = new SqlCommand(sql, connect);
-                int newProjectId = Convert.ToInt32(command.ExecuteScalar());
+                object result = command.ExecuteScalar();
                 connect.Close();
 
-                UpdateProjectTeamAndResponsible(newProjectId);
+                if (result != null && result != DBNull.Value)
+                {
+                    int newProjectId = Convert.ToInt32(result);
+                    UpdateProjectTeamAndResponsible(newProjectId);
+                    UpdateProjectTable();
+                }
             }
             else
             {
@@ -114,6 +165,7 @@ namespace HRD
                 string sql = "UPDATE Project SET " +
                     "Name ='" + NameTextBox.Text + "'," +
                     "Des ='" + DescriptionTextBox.Text + "'," +
+                    "DC ='" + DCreate.Value.ToString("yyyy-MM-dd") + "'," +
                     "PDS ='" + DPStart.Value.ToString("yyyy-MM-dd") + "'," +
                     "PDE ='" + DPEnd.Value.ToString("yyyy-MM-dd") + "'";
 
@@ -131,6 +183,7 @@ namespace HRD
                 
                 Sq(sql);
                 UpdateProjectTeamAndResponsible(int.Parse(id_pr));
+                UpdateProjectTable();
             }
             TurnDefaultMode();
         }
@@ -339,7 +392,17 @@ namespace HRD
             confirmB.Visible = true;
             canselB.Visible = true;
             addMode = true;
+            
+            // Очищаем все данные
             TurnClearData();
+            
+            // Очищаем команду проекта
+            employeeTeam.Clear();
+            dataGridView2.Rows.Clear();
+            
+            // Обновляем список ответственных и устанавливаем "Не выбрано"
+            UpdateRespCombo();
+            RespCombo.SelectedValue = DBNull.Value;
         }
         private void TurnChangeMode()
         {
@@ -396,7 +459,10 @@ namespace HRD
             DPEnd.Value = DateTime.Now.AddDays(7).AddMonths(1);
             DFStart.Value = DateTime.Now.AddDays(7);
             DFEnd.Value = DateTime.Now.AddDays(7).AddMonths(1);
+            DFStart.Checked = false;
+            DFEnd.Checked = false;
             dataGridView2.Rows.Clear();
+            employeeTeam.Clear();
         }
         private void UpdateTeamTable()
         {
@@ -440,7 +506,7 @@ namespace HRD
             adapter.Fill(dt);
             connect.Close();
 
-            // Привязываем данные к DataGridView
+            // Привязываем данные  DataGridView
             dataGridView1.DataSource = dt;
 
             // Восстанавливаем позицию
@@ -600,7 +666,7 @@ namespace HRD
             {
                 MessageBox.Show(errorMessage, "Ошибка валидации", 
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                UpdateRespCombo(); // Обновляем список после ошибки
+                UpdateRespCombo();
                 return;
             }
 
@@ -609,7 +675,7 @@ namespace HRD
             {
                 MessageBox.Show(errorMessage, "Ошибка валидации", 
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                UpdateTeamTable(); // Обновляем таблицу после ошибки
+                UpdateTeamTable();
                 return;
             }
 
@@ -628,7 +694,7 @@ namespace HRD
                             deleteCommand.ExecuteNonQuery();
                         }
 
-                        // Добавляем ответственного
+                        // Добавляем ответственного, если он выбран
                         if (RespCombo.SelectedValue != null && RespCombo.SelectedValue != DBNull.Value)
                         {
                             string insertRespSql = @"INSERT INTO Project_Employee (Pr_ID, Emp_ID, Emp_resp) 
@@ -655,7 +721,8 @@ namespace HRD
                         }
 
                         transaction.Commit();
-                        TurnDefaultMode(); // Закрываем форму только при усп��шном сохранении
+                        TurnDefaultMode();
+                        UpdateProjectTable();
                     }
                     catch (Exception)
                     {
@@ -668,11 +735,11 @@ namespace HRD
             {
                 MessageBox.Show($"Ошибка при обновлении команды проекта: {ex.Message}", 
                     "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                UpdateProjectTable(); // Обновляем основную таблицу после ошибки
+                UpdateProjectTable();
             }
             finally
             {
-                if (connect.State == System.Data.ConnectionState.Open)
+                if (connect.State == ConnectionState.Open)
                     connect.Close();
             }
         }

@@ -436,5 +436,24 @@ namespace HRD
             
             return level >= 1 && level <= 10;
         }
+
+        public static bool ValidateReportOverdueParams(DateTime startDate, DateTime endDate, string employeeId, out string errorMessage)
+        {
+            errorMessage = string.Empty;
+
+            if (endDate <= startDate)
+            {
+                errorMessage = "Дата окончания должна быть позже даты начала";
+                return false;
+            }
+
+            if (string.IsNullOrEmpty(employeeId) || employeeId == DBNull.Value.ToString())
+            {
+                errorMessage = "Необходимо выбрать сотрудника";
+                return false;
+            }
+
+            return true;
+        }
     }
 } 

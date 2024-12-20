@@ -104,7 +104,7 @@
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Padding = new System.Windows.Forms.Padding(5, 2, 0, 2);
-            this.menuStrip1.Size = new System.Drawing.Size(1345, 28);
+            this.menuStrip1.Size = new System.Drawing.Size(1348, 28);
             this.menuStrip1.TabIndex = 1;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -175,22 +175,22 @@
             // ReportWorkloadToolStripMenuItem
             // 
             this.ReportWorkloadToolStripMenuItem.Name = "ReportWorkloadToolStripMenuItem";
-            this.ReportWorkloadToolStripMenuItem.Size = new System.Drawing.Size(343, 26);
-            this.ReportWorkloadToolStripMenuItem.Text = "Отчет \"Загруженность сотрудников\"";
+            this.ReportWorkloadToolStripMenuItem.Size = new System.Drawing.Size(347, 26);
+            this.ReportWorkloadToolStripMenuItem.Text = "Отчет \"Проекты без ответственного\"";
             this.ReportWorkloadToolStripMenuItem.Click += new System.EventHandler(this.ReportWorkloadToolStripMenuItem_Click);
             // 
             // ReportOverdueToolStripMenuItem
             // 
             this.ReportOverdueToolStripMenuItem.Name = "ReportOverdueToolStripMenuItem";
-            this.ReportOverdueToolStripMenuItem.Size = new System.Drawing.Size(343, 26);
+            this.ReportOverdueToolStripMenuItem.Size = new System.Drawing.Size(347, 26);
             this.ReportOverdueToolStripMenuItem.Text = "Отчет \"Просроченные проекты\"";
             this.ReportOverdueToolStripMenuItem.Click += new System.EventHandler(this.ReportOverdueToolStripMenuItem_Click);
             // 
             // ReportExperienceToolStripMenuItem
             // 
             this.ReportExperienceToolStripMenuItem.Name = "ReportExperienceToolStripMenuItem";
-            this.ReportExperienceToolStripMenuItem.Size = new System.Drawing.Size(343, 26);
-            this.ReportExperienceToolStripMenuItem.Text = "Отчет \"Опытность сотрудников\"";
+            this.ReportExperienceToolStripMenuItem.Size = new System.Drawing.Size(347, 26);
+            this.ReportExperienceToolStripMenuItem.Text = "Отчет \"Загруженность сотрудников\"";
             this.ReportExperienceToolStripMenuItem.Click += new System.EventHandler(this.ReportExperienceToolStripMenuItem_Click);
             // 
             // showPanel
@@ -652,7 +652,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1345, 556);
+            this.ClientSize = new System.Drawing.Size(1348, 556);
             this.Controls.Add(this.showPanel);
             this.Controls.Add(this.menuStrip1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;

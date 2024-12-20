@@ -31,7 +31,7 @@ namespace HRD
         }
         private bool addMode = true;
         private List<Skill> employeeSkills = new List<Skill>();
-        public Employee selectedEmployee = null; //Бесп��������������������езно. Лучше бурать
+        public Employee selectedEmployee = null;
         public string selectedResponsable = "";
         private System.Data.SqlClient.SqlConnection connect;
         String connectionString = "Data Source=DESKTOP-FPP7TIE;Initial Catalog=HRD_DB;Trusted_Connection=True";
@@ -71,7 +71,7 @@ namespace HRD
                 string id_e = dataGridView1.CurrentRow.Cells[0].Value.ToString();
                 string sql = "DELETE FROM Employee WHERE ID_Emp=" + id_e;
                 Sq(sql);
-                OnEmployeeListChanged?.Invoke();
+                OnEmployeeDeleted?.Invoke(id_e);
             }
         }
 
@@ -374,7 +374,7 @@ namespace HRD
             // Настраиваем отображение колонок
             if (dataGridView1.Columns.Count > 0)
             {
-                // Скрываем колонк�� ID
+                // Скрываем колонки ID
                 dataGridView1.Columns[0].Visible = false;
 
                 // Настраиваем заголовки остальных колонок
@@ -387,14 +387,14 @@ namespace HRD
                 dataGridView1.Columns[7].HeaderText = "Серия паспорта";
                 dataGridView1.Columns[8].HeaderText = "Номер паспорта";
                 dataGridView1.Columns[9].HeaderText = "Кем выдан";
-                dataGridView1.Columns[10].HeaderText = "Ког��а выдан";
+                dataGridView1.Columns[10].HeaderText = "Когда выдан";
                 dataGridView1.Columns[11].HeaderText = "Регистрация";
                 dataGridView1.Columns[12].HeaderText = "Проживание";
                 dataGridView1.Columns[13].HeaderText = "Email";
                 dataGridView1.Columns[14].HeaderText = "Telegram";
                 dataGridView1.Columns[15].HeaderText = "Телефон";
 
-                // Наст��аиваем форматирование дат
+                // Настраиваем форматирование дат
                 dataGridView1.Columns[6].DefaultCellStyle.Format = "dd.MM.yyyy";
                 dataGridView1.Columns[10].DefaultCellStyle.Format = "dd.MM.yyyy";
             }
@@ -484,7 +484,7 @@ namespace HRD
                     {
                         if (reader.Read())
                         {
-                            // Обновляем комбобо��сы перед установкой значений
+                            // Обновляем комбобоксы перед установкой значений
                             UpdateComboBoxes();
 
                             // Устанавливаем значения комбобоксов
@@ -536,58 +536,38 @@ namespace HRD
 
         private void dataGridView2_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
-            // Проверяем, что таблица не пуста и индекс строки валидный
-            if (dataGridView2.Rows.Count == 0 || e.RowIndex < 0 || e.RowIndex >= dataGridView2.Rows.Count)
-                return;
-
-            // Проверяем, что список навыков не пуст и индекс валидный
-            if (employeeSkills == null || employeeSkills.Count == 0 || e.RowIndex >= employeeSkills.Count)
-                return;
-
-            AddSkillForm addSkillForm = new AddSkillForm(employeeSkills[e.RowIndex].skillLevel);
+            AddSkillForm addSkillForm = new AddSkillForm(employeeSkills[dataGridView2.CurrentRow.Index].skillLevel);
             if (addSkillForm.ShowDialog() == DialogResult.OK)
             {
                 string id_e = dataGridView1.CurrentRow.Cells[0].Value.ToString();
-                int n_s = e.RowIndex;
+                int n_s = dataGridView2.CurrentRow.Index;
                 string skillLevel = addSkillForm.SelectedLevel;
-                employeeSkills[e.RowIndex].skillLevel = skillLevel;
-                
+                employeeSkills[dataGridView2.CurrentRow.Index].skillLevel = skillLevel;
                 string sql = "UPDATE Employee_Skill SET "
-                    + "Prof ='" + skillLevel
-                    + "' WHERE Emp_ID=" + id_e 
-                    + " AND Skill_ID =" + employeeSkills[e.RowIndex].skillId;  // Исправлен синтаксис SQL
-                
+               + "Prof ='" + skillLevel
+               + "' WHERE Emp_ID=" + id_e + ", "
+               + "Skill_ID =" + employeeSkills[dataGridView2.CurrentRow.Index].skillId + ";";
                 UpdateSkillTable();
                 dataGridView2.CurrentCell = dataGridView2.Rows[n_s].Cells[1];
                 dataGridView2.ClearSelection();
                 dataGridView2.Rows[n_s].Selected = true;
+                dataGridView2.Rows[n_s].Cells[0].Selected = true;
             }
         }
 
         private void dataGridView1_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (this.Tag != null)
+            if (e.RowIndex >= 0 && this.Tag?.ToString() == "checkEmployee")
             {
-                if (this.Tag.ToString() == "checkTeam")
-                {
-                    selectedEmployee = new Employee(
-                        dataGridView1.CurrentRow.Cells[0].Value.ToString(),
-                        dataGridView1.CurrentRow.Cells[3].Value.ToString(),
-                        dataGridView1.CurrentRow.Cells[4].Value.ToString(),
-                        dataGridView1.CurrentRow.Cells[5].Value.ToString(),
-                        dataGridView1.CurrentRow.Cells[2].Value.ToString(),
-                        dataGridView1.CurrentRow.Cells[1].Value.ToString()
-                    );
-                    OnEmployeeSelected?.Invoke(selectedEmployee);
-                    this.DialogResult = DialogResult.OK;
-                    this.Close();
-                }
-                if (this.Tag.ToString()== "checkResponsable")
-                {
-                    selectedResponsable = dataGridView1.CurrentRow.Cells[0].Value.ToString();
-                    this.DialogResult = DialogResult.OK;
-                    this.Close();
-                }
+                string id = dataGridView1.Rows[e.RowIndex].Cells[0].Value.ToString();
+                string name = dataGridView1.Rows[e.RowIndex].Cells[1].Value.ToString();
+                string lname = dataGridView1.Rows[e.RowIndex].Cells[2].Value.ToString();
+                string pat = dataGridView1.Rows[e.RowIndex].Cells[3].Value.ToString();
+                string pos = dataGridView1.Rows[e.RowIndex].Cells[4].Value.ToString();
+                string qual = dataGridView1.Rows[e.RowIndex].Cells[5].Value.ToString();
+
+                Employee selectedEmployee = new Employee(id, name, lname, pat, pos, qual);
+                OnEmployeeSelected?.Invoke(selectedEmployee);
             }
         }
 
@@ -679,7 +659,7 @@ namespace HRD
                 employeeSkills.Clear();
                 dataGridView2.Rows.Clear();
 
-                // Загружаем навыки сотрудника из базы дан��ых
+                // Загружаем навыки сотрудника из базы данных
                 string sql = "SELECT Skill_ID, Name, Prof FROM Skill " +
                             "INNER JOIN Employee_Skill ON ID_Skill = Skill_ID " +
                             "WHERE Emp_ID = " + dataGridView1.CurrentRow.Cells[0].Value.ToString();
